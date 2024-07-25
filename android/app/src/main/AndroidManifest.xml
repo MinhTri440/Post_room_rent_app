@@ -15,9 +15,9 @@
 
 
     <application
-        android:label="post_house_rent_app"
+        android:label="WantRoom"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
 
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
@@ -55,9 +55,14 @@
             android:name="flutterEmbedding"
             android:value="2" />
 
-        <!-- Them nay vao -->
+        <!-- Them nay vao cua google map -->
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAo1hy4bl3PmNJRHtdvNU0mxP4_GhXZwbU"/>
+
+        <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713"/>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility?hl=en and

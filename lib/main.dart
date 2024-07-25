@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:post_house_rent_app/Widget/HomeScreen.dart';
 import 'package:post_house_rent_app/Widget/LoginScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -10,11 +11,12 @@ import 'package:post_house_rent_app/provider/FavoriteStatusProvider.dart';
 import 'package:post_house_rent_app/provider/ReviewProvider.dart';
 import 'package:post_house_rent_app/provider/ShowListPostProvider.dart';
 import 'package:provider/provider.dart';
-
+import 'package:post_house_rent_app/provider/TurorialPostProvider.dart';
 import 'provider/ListFavouriteProvider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
   await Firebase.initializeApp(
     options: Platform.isAndroid
         ? FirebaseOptions(
@@ -42,6 +44,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => FavoritePostProvider()),
         ChangeNotifierProvider(create: (_) => ShowListPostProvider()),
         ChangeNotifierProvider(create: (_) => ReviewListProvider()),
+        ChangeNotifierProvider(create: (_) => TutorialPostProvider()),
       ],
       child: MyApp(),
     ),

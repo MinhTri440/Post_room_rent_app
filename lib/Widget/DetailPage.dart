@@ -136,12 +136,34 @@ class _DetailPageState extends State<DetailPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Yêu cầu đăng nhập'),
-        content: Text('Bạn cần đăng nhập để sử dụng chức năng này.'),
+        backgroundColor: Colors.grey[800],
+        title: Text(
+          'Yêu cầu đăng nhập',
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: 'Roboto', // hoặc chọn một font chữ khác phù hợp
+            fontWeight: FontWeight.bold, // hoặc chọn kiểu chữ phù hợp
+          ),
+        ),
+        content: Text(
+          'Bạn cần đăng nhập để sử dụng chức năng này.',
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: 'Roboto', // hoặc chọn một font chữ khác phù hợp
+            fontWeight: FontWeight.bold, // hoặc chọn kiểu chữ phù hợp
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text('Hủy'),
+            child: Text(
+              'Hủy',
+              style: TextStyle(
+                color: Colors.white,
+                fontFamily: 'Roboto', // hoặc chọn một font chữ khác phù hợp
+                fontWeight: FontWeight.bold, // hoặc chọn kiểu chữ phù hợp
+              ),
+            ),
           ),
           TextButton(
             onPressed: () {
@@ -151,7 +173,14 @@ class _DetailPageState extends State<DetailPage> {
                 MaterialPageRoute(builder: (context) => LoginPage()),
               );
             },
-            child: Text('Đăng nhập'),
+            child: Text(
+              'Đăng nhập',
+              style: TextStyle(
+                color: Colors.blue,
+                fontFamily: 'Roboto', // hoặc chọn một font chữ khác phù hợp
+                fontWeight: FontWeight.bold, // hoặc chọn kiểu chữ phù hợp
+              ),
+            ),
           ),
         ],
       ),
@@ -176,23 +205,6 @@ class _DetailPageState extends State<DetailPage> {
       } else {
         _videoPlayerController?.pause();
       }
-    }
-  }
-
-  Future<void> checkLogin() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var checklogin = prefs.getBool('login');
-    if (checklogin == true) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => LoginPage()),
-      );
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => BookingScreen(post: widget.post)),
-      );
     }
   }
 
@@ -914,8 +926,11 @@ class _DetailPageState extends State<DetailPage> {
                                   ),
                                 ),
                               ElevatedButton(
-                                onPressed: () {
-                                  checkLogin();
+                                onPressed: () async {
+                                  //checkLogin();
+                                  if (await _isnotLoggedIn() == true) {
+                                    return _showLoginDialog();
+                                  }
                                 },
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,

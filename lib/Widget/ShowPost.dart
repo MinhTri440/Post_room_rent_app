@@ -1,12 +1,18 @@
+import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:post_house_rent_app/Widget/HomeScreen.dart';
 import 'package:post_house_rent_app/Widget/LoginScreen.dart';
+import 'package:post_house_rent_app/Widget/MyBannerAdWidget.dart';
+import 'package:post_house_rent_app/provider/TurorialPostProvider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../MongoDb_Connect.dart';
 import '../provider/ListFavouriteProvider.dart';
 import '../provider/ShowListPostProvider.dart';
+import 'AllTutorialPost.dart';
 import 'CreatePost.dart';
 import 'package:intl/intl.dart';
 import 'package:post_house_rent_app/Widget/DetailPage.dart';
@@ -21,12 +27,48 @@ class ShowPost extends StatefulWidget {
 class _ShowPostState extends State<ShowPost> {
   late String username = 'nologin';
   late String imageUrl = 'nologin';
+  List<Map<String, String>> baiviets = [
+    {
+      'image': 'https://via.placeholder.com/150',
+      'title': 'Bài viết 1',
+      'description': 'Mô tả nội dung bài viết 1',
+    },
+    {
+      'image': 'https://via.placeholder.com/150',
+      'title': 'Bài viết 2',
+      'description': 'Mô tả nội dung bài viết 2',
+    },
+    // Add more posts as needed
+  ];
 
   @override
   void initState() {
     super.initState();
     check_if_already_login();
     //_loadPosts();
+    loadAd();
+  }
+
+  void loadAd() {
+    final adUnitId = Platform.isAndroid
+        ? 'ca-app-pub-3940256099942544/1033173712'
+        : 'ca-app-pub-3940256099942544/4411468910';
+    InterstitialAd.load(
+        adUnitId: adUnitId,
+        request: const AdRequest(),
+        adLoadCallback: InterstitialAdLoadCallback(
+          // Called when an ad is successfully received.
+          onAdLoaded: (ad) {
+            debugPrint('$ad loaded.');
+            // Keep a reference to the ad so you can show it later.
+            //_interstitialAd = ad;
+            ad.show();
+          },
+          // Called when an ad request failed.
+          onAdFailedToLoad: (LoadAdError error) {
+            debugPrint('InterstitialAd failed to load: $error');
+          },
+        ));
   }
 
   void check_if_already_login() async {
@@ -175,7 +217,7 @@ class _ShowPostState extends State<ShowPost> {
                         childAspectRatio: 2.9 / 3.5,
                       ),
                       itemCount: provider.postList.length >= 7
-                          ? 7
+                          ? 6
                           : provider.postList.length,
                       padding: EdgeInsets.all(1.0),
                       itemBuilder: (context, index) {
@@ -425,7 +467,7 @@ class _ShowPostState extends State<ShowPost> {
                         childAspectRatio: 2.9 / 3.5,
                       ),
                       itemCount: provider.postShareRoomList.length >= 7
-                          ? 7
+                          ? 6
                           : provider.postShareRoomList.length,
                       padding: EdgeInsets.all(1.0),
                       itemBuilder: (context, index) {
@@ -588,6 +630,164 @@ class _ShowPostState extends State<ShowPost> {
                                           color: Colors.white,
                                         ),
                                       ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: Colors.blue,
+                          radius: 10.0,
+                          child: Icon(
+                            Icons.circle,
+                            color: Colors.black,
+                            size: 15.0,
+                          ),
+                        ),
+                        SizedBox(width: 5),
+                        Text(
+                          'Bài Viết',
+                          style: TextStyle(
+                            fontSize: 20.0,
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                          ),
+                        ),
+                      ],
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => AllTutorialposts()),
+                        );
+                        // Action when the view more button is pressed
+                      },
+                      child: Text(
+                        'Xem thêm',
+                        style: TextStyle(
+                            fontSize: 20.0,
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Consumer<TutorialPostProvider>(
+                builder: (context, provider, child) {
+                  if (provider.tutorialPosts.isEmpty) {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    );
+                  } else {
+                    return GridView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 1,
+                        childAspectRatio: 2.9 / 2.5,
+                      ),
+                      itemCount: provider.tutorialPosts.length >= 4
+                          ? 3
+                          : provider.tutorialPosts.length,
+                      padding: EdgeInsets.all(8.0),
+                      itemBuilder: (context, index) {
+                        var post = provider.tutorialPosts[index];
+                        return InkWell(
+                          onTap: () async {
+                            String? url = post['link'];
+                            if (await canLaunch(url!)) {
+                              await launch(url);
+                            } else {
+                              throw 'Could not launch $url';
+                            }
+                          },
+                          child: Card(
+                            color: Colors.grey[800],
+                            margin: EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Stack(
+                                  alignment: Alignment.bottomLeft,
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(15.0),
+                                      child: Image.network(
+                                        post['image']!,
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: 200,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      RichText(
+                                        text: TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text: " " + post['title']!,
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                                fontFamily: 'Roboto',
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.blue,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        //overflow: TextOverflow.ellipsis,
+                                      ),
+                                      SizedBox(height: 12),
+                                      RichText(
+                                        text: TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text: post['description']!,
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontFamily: 'Roboto',
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        //overflow: TextOverflow.ellipsis,
+                                      ),
+                                      SizedBox(height: 4),
                                     ],
                                   ),
                                 ),

@@ -586,4 +586,13 @@ class MongoDatabase {
     await db.close();
     return existingPost;
   }
+
+  static Future<List<Map<String, dynamic>>> list_tutorialPost() async {
+    var db = await Db.create(MONGO_URL);
+    await db.open();
+    inspect(db);
+    var user = db.collection('Tutorial_Post');
+    Future<List<Map<String, dynamic>>> search = user.find().toList();
+    return search;
+  }
 }

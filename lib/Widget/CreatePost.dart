@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
@@ -7,6 +8,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:post_house_rent_app/MongoDb_Connect.dart';
 import 'package:post_house_rent_app/Widget/HomeScreen.dart';
+import 'package:post_house_rent_app/Widget/MyRewardedAd.dart';
 import 'package:post_house_rent_app/Widget/ShowPost.dart';
 import 'package:post_house_rent_app/provider/ShowListPostProvider.dart';
 import 'package:provider/provider.dart';
@@ -252,6 +254,151 @@ class _UpPostState extends State<UpPost> {
     } catch (e) {
       return null;
     }
+  }
+
+  bool isWatchAds = false;
+
+  void loadAdandShowAd() {
+    // TODO: replace this test ad unit with your own ad unit.
+    final adUnitId = Platform.isAndroid
+        ? 'ca-app-pub-3940256099942544/5224354917'
+        : 'ca-app-pub-3940256099942544/1712485313';
+    RewardedAd.load(
+        adUnitId: adUnitId,
+        request: const AdRequest(),
+        rewardedAdLoadCallback: RewardedAdLoadCallback(
+          // Called when an ad is successfully received.
+          onAdLoaded: (ad) {
+            debugPrint('$ad loaded.');
+            // Keep a reference to the ad so you can show it later.
+            //_rewardedAd = ad;
+
+            ad.show(onUserEarnedReward:
+                (AdWithoutView ad, RewardItem rewardItem) async {
+              // Reward the user for watching an ad.
+              await _uploadImages(email); // Ensure this completes
+              await _uploadVideo(email); // Ensure this completes
+
+              showDialog(
+                context: context,
+                barrierDismissible:
+                    false, // Prevent user from dismissing dialog
+                builder: (BuildContext context) {
+                  return Center(
+                    child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white)), // Display CircularProgressIndicator
+                  );
+                },
+              );
+              String? owner = await MongoDatabase.get_IdfromUser(email);
+              String address = '';
+              if (_houseController.text == '') {
+                address = _streetController.text +
+                    ', ' +
+                    selectedCommuneName +
+                    ', ' +
+                    selectedDistrictName +
+                    ', ' +
+                    selectedProvinceName;
+              } else {
+                address = _houseController.text +
+                    ', ' +
+                    _streetController.text +
+                    ', ' +
+                    selectedCommuneName +
+                    ', ' +
+                    selectedDistrictName +
+                    ', ' +
+                    selectedProvinceName;
+              }
+
+              Post newPost = Post(
+                ownerId: owner,
+                selectedType: _selectedType,
+                selectedRoomType: _selectedRoomType,
+                area: int.parse(_areaController.text),
+                price: int.parse(_priceController.text),
+                selectedAmenitiesNames: selectedAmenitiesNames,
+                address: address,
+                topic: _topicController.text,
+                phone: _phoneController.text,
+                zalophone: _zalophoneController.text,
+                facebookLink: _facebooklinkController.text,
+                description: _descriptionController.text,
+                imageUrls: _imageUrls,
+                videoURL: _videoURL,
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+              );
+
+              bool check = await MongoDatabase.createPost(newPost);
+              Provider.of<ShowListPostProvider>(context, listen: false)
+                  .refreshShowListUserAndListPostPost();
+              if (check == false) {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      backgroundColor: Colors.grey[800],
+                      title: Text(
+                        'Thông báo',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontFamily:
+                                'Roboto', // hoặc chọn một font chữ khác phù hợp
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16 // hoặc chọn kiểu chữ phù hợp
+                            ),
+                      ),
+                      content: Text(
+                        'Thông tin bài đăng của bạn trùng với 1 bài đăng có trên hệ thông. Xin đừng đăng lại phòng , căn hộ cho thuê hoặc ở ghép nhiều lần',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontFamily:
+                                'Roboto', // hoặc chọn một font chữ khác phù hợp
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16 // hoặc chọn kiểu chữ phù hợp
+                            ),
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(
+                            'Đóng',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontFamily:
+                                    'Roboto', // hoặc chọn một font chữ khác phù hợp
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16 // hoặc chọn kiểu chữ phù hợp
+                                ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
+                return;
+              } else {
+                // Navigator.pushAndRemoveUntil(
+                //   context,
+                //   MaterialPageRoute(builder: (context) => HomeScreen()),
+                //   (Route<dynamic> route) => false,
+                // );
+                Navigator.pop(context);
+                Navigator.pop(context);
+              }
+            });
+          },
+
+          // Called when an ad request failed.
+          onAdFailedToLoad: (LoadAdError error) {
+            debugPrint('RewardedAd failed to load: $error');
+          },
+        ));
   }
 
   @override
@@ -889,119 +1036,74 @@ class _UpPostState extends State<UpPost> {
                         );
                         return;
                       } else {
-                        // Display CircularProgressIndicator while processing
                         showDialog(
                           context: context,
-                          barrierDismissible:
-                              false, // Prevent user from dismissing dialog
                           builder: (BuildContext context) {
-                            return Center(
-                              child: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors
-                                      .white)), // Display CircularProgressIndicator
+                            return AlertDialog(
+                              backgroundColor: Colors.grey[800],
+                              title: Text(
+                                'Xác nhận',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily:
+                                      'Roboto', // hoặc chọn một font chữ khác phù hợp
+                                  fontWeight: FontWeight
+                                      .bold, // hoặc chọn kiểu chữ phù hợp
+                                ),
+                              ),
+                              content: Text(
+                                'Bạn phải xem video để được đăng bài?',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily:
+                                      'Roboto', // hoặc chọn một font chữ khác phù hợp
+                                  fontWeight: FontWeight
+                                      .bold, // hoặc chọn kiểu chữ phù hợp
+                                ),
+                              ),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .pop(); // Đóng hộp thoại
+                                  },
+                                  child: Text(
+                                    'Hủy',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily:
+                                          'Roboto', // hoặc chọn một font chữ khác phù hợp
+                                      fontWeight: FontWeight
+                                          .bold, // hoặc chọn kiểu chữ phù hợp
+                                    ),
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () async {
+                                    Navigator.of(context)
+                                        .pop(); // Đóng hộp thoại xác nhận
+                                    //MyRewardedAd.loadAdandShowAd();
+                                    loadAdandShowAd();
+// Thực hiện hành động xóa
+
+// Đóng hộp thoại tiến trình
+                                    //Navigator.of(context).pop();
+                                  },
+                                  child: Text(
+                                    'Xác nhận',
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontFamily:
+                                          'Roboto', // hoặc chọn một font chữ khác phù hợp
+                                      fontWeight: FontWeight
+                                          .bold, // hoặc chọn kiểu chữ phù hợp
+                                    ),
+                                  ),
+                                ),
+                              ],
                             );
                           },
                         );
-                        await _uploadImages(email); // Ensure this completes
-                        await _uploadVideo(email); // Ensure this completes
-                        String? owner =
-                            await MongoDatabase.get_IdfromUser(email);
-                        String address = '';
-                        if (_houseController.text == '') {
-                          address = _streetController.text +
-                              ', ' +
-                              selectedCommuneName +
-                              ', ' +
-                              selectedDistrictName +
-                              ', ' +
-                              selectedProvinceName;
-                        } else {
-                          address = _houseController.text +
-                              ', ' +
-                              _streetController.text +
-                              ', ' +
-                              selectedCommuneName +
-                              ', ' +
-                              selectedDistrictName +
-                              ', ' +
-                              selectedProvinceName;
-                        }
-
-                        Post newPost = Post(
-                          ownerId: owner,
-                          selectedType: _selectedType,
-                          selectedRoomType: _selectedRoomType,
-                          area: int.parse(_areaController.text),
-                          price: int.parse(_priceController.text),
-                          selectedAmenitiesNames: selectedAmenitiesNames,
-                          address: address,
-                          topic: _topicController.text,
-                          phone: _phoneController.text,
-                          zalophone: _zalophoneController.text,
-                          facebookLink: _facebooklinkController.text,
-                          description: _descriptionController.text,
-                          imageUrls: _imageUrls,
-                          videoURL: _videoURL,
-                          createdAt: DateTime.now(),
-                          updatedAt: DateTime.now(),
-                        );
-
-                        bool check = await MongoDatabase.createPost(newPost);
-                        Provider.of<ShowListPostProvider>(context,
-                                listen: false)
-                            .refreshShowListUserAndListPostPost();
-                        if (check == false) {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                backgroundColor: Colors.grey[800],
-                                title: Text(
-                                  'Thông báo',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontFamily:
-                                          'Roboto', // hoặc chọn một font chữ khác phù hợp
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16 // hoặc chọn kiểu chữ phù hợp
-                                      ),
-                                ),
-                                content: Text(
-                                  'Thông tin bài đăng của bạn trùng với 1 bài đăng có trên hệ thông. Xin đừng đăng lại phòng , căn hộ cho thuê hoặc ở ghép nhiều lần',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontFamily:
-                                          'Roboto', // hoặc chọn một font chữ khác phù hợp
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16 // hoặc chọn kiểu chữ phù hợp
-                                      ),
-                                ),
-                                actions: <Widget>[
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text(
-                                      'Đóng',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontFamily:
-                                              'Roboto', // hoặc chọn một font chữ khác phù hợp
-                                          fontWeight: FontWeight.bold,
-                                          fontSize:
-                                              16 // hoặc chọn kiểu chữ phù hợp
-                                          ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                          return;
-                        } else {
-                          Navigator.pop(context);
-                          Navigator.pop(context);
-                        }
                       }
                     }
 
