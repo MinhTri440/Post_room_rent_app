@@ -277,6 +277,8 @@ class _LoginFormState extends State<LoginForm> {
         );
 
         if (userCredential.user != null) {
+          bool updatepass =
+              await MongoDatabase.updatePasswordUser(email, password);
           print("Dang nhap thanh cong");
           prefs = await SharedPreferences.getInstance();
           prefs.setBool('login', false);

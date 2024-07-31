@@ -65,7 +65,10 @@ dependencies:
   flutter_typeahead: ^5.2.0
   #quang cao
   google_mobile_ads: ^5.1.0
+  #thong bao
+  firebase_messaging: ^14.9.4
 
+  searchfield: ^1.0.8
 
 
 

@@ -167,6 +167,10 @@ class _AccountManagerState extends State<AccountManager> {
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              4.0), // Bán kính biên nhỏ để nút nhìn vuông hơn
+                        ),
                       ),
                     ),
                   ),
@@ -187,6 +191,10 @@ class _AccountManagerState extends State<AccountManager> {
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              4.0), // Bán kính biên nhỏ để nút nhìn vuông hơn
+                        ),
                       ),
                     ),
                   ),
@@ -207,6 +215,10 @@ class _AccountManagerState extends State<AccountManager> {
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              4.0), // Bán kính biên nhỏ để nút nhìn vuông hơn
+                        ),
                       ),
                     ),
                   ),
@@ -229,6 +241,10 @@ class _AccountManagerState extends State<AccountManager> {
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                                4.0), // Bán kính biên nhỏ để nút nhìn vuông hơn
+                          ),
                         ),
                       ),
                     ),

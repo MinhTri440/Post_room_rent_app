@@ -38,11 +38,13 @@ class _InformationAccountState extends State<InformationAccount> {
     });
     Map<String, dynamic>? search =
         await MongoDatabase.getUser(prefs.getString('email'));
-    setState(() {
-      email = prefs.getString('email')!;
-      _phoneController.text = search?['phone'];
-      _isLoading = false; // Đánh dấu đã tải xong dữ liệu
-    });
+    if (mounted) {
+      setState(() {
+        email = prefs.getString('email')!;
+        _phoneController.text = search?['phone'];
+        _isLoading = false; // Đánh dấu đã tải xong dữ liệu
+      });
+    }
   }
 
   // Hàm để chọn hình ảnh từ thư viện máy và lưu lên Firebase Storage

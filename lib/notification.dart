@@ -8,7 +8,7 @@ class notification {
 
   static Future<void> init() async {
     const AndroidInitializationSettings androidInitializationSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('@drawable/home');
     const DarwinInitializationSettings IOSInitializationSettings =
         DarwinInitializationSettings();
     const InitializationSettings initializationSettings =

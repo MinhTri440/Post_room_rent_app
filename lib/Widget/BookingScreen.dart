@@ -39,12 +39,14 @@ class _BookingScreenState extends State<BookingScreen> {
         await MongoDatabase.get_IdfromUser(prefs.getString('email'));
     Map<String, dynamic>? user =
         await MongoDatabase.getUserById(id_person_booking);
-    setState(() {
-      UserName = user?['username'];
-      UserEmail = user?['email'];
-      UserPhone = user?['phone'];
-      isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        UserName = user?['username'];
+        UserEmail = user?['email'];
+        UserPhone = user?['phone'];
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> _selectDate(BuildContext context) async {

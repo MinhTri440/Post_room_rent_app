@@ -595,4 +595,29 @@ class MongoDatabase {
     Future<List<Map<String, dynamic>>> search = user.find().toList();
     return search;
   }
+
+  static Future<bool> updatePasswordUser(
+      String? email, String? password) async {
+    var db = await Db.create(MONGO_URL);
+    await db.open();
+    var users = db.collection('User');
+    Map<String, dynamic>? search = await users.findOne({
+      'email': email,
+    });
+
+    if (search != null) {
+      if (search['password'] != password) {
+        // Update the password
+        await users.update(
+          where.eq('email', email),
+          modify.set('password', password),
+        );
+        return true; // Password updated
+      } else {
+        return false; // Password is the same, no update needed
+      }
+    } else {
+      return false; // User not found
+    }
+  }
 }

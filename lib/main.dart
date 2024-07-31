@@ -12,6 +12,7 @@ import 'package:post_house_rent_app/provider/ReviewProvider.dart';
 import 'package:post_house_rent_app/provider/ShowListPostProvider.dart';
 import 'package:provider/provider.dart';
 import 'package:post_house_rent_app/provider/TurorialPostProvider.dart';
+import 'FirebaseMessagingApi.dart';
 import 'provider/ListFavouriteProvider.dart';
 
 void main() async {
@@ -28,13 +29,13 @@ void main() async {
           )
         : null,
   );
+  await FireBaseMessagingApi().initNotifications();
 
   // Khởi tạo và lên lịch thông báo;
-  await notification.init();
-  // await notification.showInstantNotification(
-  //     "Chào buổi sáng!", "Chúc bạn một ngày tốt lành!");
+  //     await notification.init();
+  //
   await notification.scheduleDailyMorningNotification(
-    "Chào buổi sáng!",
+    "Beloo!",
     "Bạn đã tìm được chỗ ở ưng ý chưa ?",
   );
 

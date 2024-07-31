@@ -73,33 +73,41 @@ class _DetailPageState extends State<DetailPage> {
 
     String? search =
         await MongoDatabase.get_IdfromUser(prefs.getString('email'));
-    setState(() {
-      idUser = search!;
-      postId = widget.post['_id'].toString();
-      postId =
-          postId!.substring(postId.indexOf('"') + 1, postId.lastIndexOf('"'));
-    });
+    if (mounted) {
+      setState(() {
+        idUser = search!;
+        postId = widget.post['_id'].toString();
+        postId =
+            postId!.substring(postId.indexOf('"') + 1, postId.lastIndexOf('"'));
+      });
+    }
   }
 
   Future<void> setFavourite() async {
     print(idUser);
     print(postId);
     bool getcheck = await MongoDatabase.setFavouriteIcon(idUser, postId);
-    setState(() {
-      isFavorite = getcheck;
-    });
+    if (mounted) {
+      setState(() {
+        isFavorite = getcheck;
+      });
+    }
+
     print(isFavorite);
   }
 
   Future<void> _initializeData() async {
     await _loadUserData();
     await setFavourite();
-    final reviewProvider =
-        Provider.of<ReviewListProvider>(context, listen: false);
-    await reviewProvider.fetchReview(postId);
-    setState(() {
-      listReview = reviewProvider.ListReviewPosts;
-    });
+    if (mounted) {
+      final reviewProvider =
+          Provider.of<ReviewListProvider>(context, listen: false);
+      await reviewProvider.fetchReview(postId);
+
+      setState(() {
+        listReview = reviewProvider.ListReviewPosts;
+      });
+    }
     print(listReview);
   }
 
@@ -189,8 +197,14 @@ class _DetailPageState extends State<DetailPage> {
 
   @override
   void dispose() {
+    // Hủy PageController nếu cần
     _pageController.dispose();
+
+    // Giải phóng VideoPlayerController nếu có
     _videoPlayerController?.dispose();
+
+    // Giải phóng TextEditingController
+    _reviewController.dispose();
     super.dispose();
   }
 
@@ -450,7 +464,7 @@ class _DetailPageState extends State<DetailPage> {
                               color: Colors.blue),
                           const SizedBox(width: 4.0),
                           Text(
-                            'Loại hình: ${widget.post['selectedType']}',
+                            'Loại hình: ${widget.post['selectedRoomType']}',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -930,6 +944,13 @@ class _DetailPageState extends State<DetailPage> {
                                   //checkLogin();
                                   if (await _isnotLoggedIn() == true) {
                                     return _showLoginDialog();
+                                  } else {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              BookingScreen(post: widget.post)),
+                                    );
                                   }
                                 },
                                 child: Row(
