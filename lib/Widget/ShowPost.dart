@@ -27,26 +27,13 @@ class ShowPost extends StatefulWidget {
 class _ShowPostState extends State<ShowPost> {
   late String username = 'nologin';
   late String imageUrl = 'nologin';
-  List<Map<String, String>> baiviets = [
-    {
-      'image': 'https://via.placeholder.com/150',
-      'title': 'Bài viết 1',
-      'description': 'Mô tả nội dung bài viết 1',
-    },
-    {
-      'image': 'https://via.placeholder.com/150',
-      'title': 'Bài viết 2',
-      'description': 'Mô tả nội dung bài viết 2',
-    },
-    // Add more posts as needed
-  ];
 
   @override
   void initState() {
     super.initState();
+    loadAd();
     check_if_already_login();
     //_loadPosts();
-    loadAd();
   }
 
   void loadAd() {
@@ -54,21 +41,19 @@ class _ShowPostState extends State<ShowPost> {
         ? 'ca-app-pub-3940256099942544/1033173712'
         : 'ca-app-pub-3940256099942544/4411468910';
     InterstitialAd.load(
-        adUnitId: adUnitId,
-        request: const AdRequest(),
-        adLoadCallback: InterstitialAdLoadCallback(
-          // Called when an ad is successfully received.
-          onAdLoaded: (ad) {
-            debugPrint('$ad loaded.');
-            // Keep a reference to the ad so you can show it later.
-            //_interstitialAd = ad;
-            ad.show();
-          },
-          // Called when an ad request failed.
-          onAdFailedToLoad: (LoadAdError error) {
-            debugPrint('InterstitialAd failed to load: $error');
-          },
-        ));
+      adUnitId: adUnitId,
+      request: AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (InterstitialAd ad) {
+          // Ad successfully loaded
+          ad.show();
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          // Handle the error
+          print('InterstitialAd failed to load: $error');
+        },
+      ),
+    );
   }
 
   void check_if_already_login() async {

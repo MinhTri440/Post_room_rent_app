@@ -68,7 +68,7 @@ dependencies:
   #thong bao
   firebase_messaging: ^14.9.4
 
-  searchfield: ^1.0.8
+  share_plus: ^10.0.0
 
 
 

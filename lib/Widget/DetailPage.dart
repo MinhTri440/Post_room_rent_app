@@ -13,6 +13,7 @@ import '../provider/ListFavouriteProvider.dart';
 import '../provider/ReviewProvider.dart';
 import 'ChatPage.dart';
 import 'LoginScreen.dart';
+import 'package:share_plus/share_plus.dart';
 
 List<Map<String, dynamic>> amenities = [
   {'name': 'Wifi', 'icon': Icons.wifi},
@@ -319,6 +320,7 @@ class _DetailPageState extends State<DetailPage> {
     }
 
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
         title: Text(
           'Chi Tiết Bài Viết',
@@ -984,49 +986,65 @@ class _DetailPageState extends State<DetailPage> {
                                   ),
                                 ),
                               ),
-                              // ElevatedButton(
-                              //   onPressed: () {
-                              //     Navigator.push(
-                              //       context,
-                              //       MaterialPageRoute(
-                              //         builder: (context) => ChatPage(
-                              //             userID: idUser,
-                              //             ownerId: widget.post['ownerId']),
-                              //       ),
-                              //     );
-                              //   },
-                              //   child:
-                              //   Row(
-                              //     mainAxisSize: MainAxisSize.min,
-                              //     children: [
-                              //       Icon(
-                              //         Icons.chat,
-                              //         color: Colors.white,
-                              //       ),
-                              //       SizedBox(width: 8.0),
-                              //       Text(
-                              //         'Nhắn tin với chủ phòng',
-                              //         style: TextStyle(
-                              //           fontWeight: FontWeight.bold,
-                              //           fontFamily: 'Roboto',
-                              //           color: Colors.white,
-                              //         ),
-                              //       ),
-                              //     ],
-                              //   ),
-                              //   style: ButtonStyle(
-                              //     backgroundColor:
-                              //         MaterialStateProperty.all<Color>(
-                              //             Colors.blue), // Blue background
-                              //     shape: MaterialStateProperty.all<
-                              //         RoundedRectangleBorder>(
-                              //       RoundedRectangleBorder(
-                              //         borderRadius: BorderRadius.circular(
-                              //             8.0), // Adjust the radius to make the corners more square
-                              //       ),
-                              //     ),
-                              //   ),
-                              // ),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  // Add your share functionality here
+                                  // Share postInfo (you can use a package like 'share_plus' to implement this)
+                                  String imageUrlsString =
+                                      (widget.post['imageUrls'] as List)
+                                          .map((url) => url.toString())
+                                          .join('\n');
+                                  String videoURL = '';
+                                  if (widget.post['videoURL'] != null) {
+                                    videoURL = widget.post['videoURL'];
+                                  }
+                                  Share.share(
+                                      'Nội dung bài đăng: ${widget.post['topic']}\n' +
+                                          'Loại bài: ${widget.post['selectedType']}\n' +
+                                          'Loại hình cho thuê: ${widget.post['selectedRoomType']}\n' +
+                                          'Diện tích: ${widget.post['area'].toString()}\n' +
+                                          'Giá: ${widget.post['price'].toString()}\n' +
+                                          'Các tiện ích: ${widget.post['selectedAmenitiesNames'].toString()}\n' +
+                                          'Địa chỉ: ${widget.post['address']}\n' +
+                                          'phone: ${widget.post['phone']}\n' +
+                                          'Truy cập link để xem hình ảnh và video:\n$imageUrlsString\n' +
+                                          videoURL +
+                                          '\n' +
+                                          'Mô tả : ${widget.post['description']}\n',
+                                      subject:
+                                          'Truy cập WantRoom để xem chi tiết và hẹn xem, liên hệ với chủ nha!');
+                                },
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.share,
+                                      color: Colors.white,
+                                    ),
+                                    SizedBox(width: 8.0),
+                                    Text(
+                                      'Chia sẻ thông tin bài đăng',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Roboto',
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStateProperty.all<Color>(Colors
+                                          .blue), // Green background for the share button
+                                  shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          8.0), // Adjust the radius to make the corners more square
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         );
@@ -1052,7 +1070,6 @@ class _DetailPageState extends State<DetailPage> {
           ),
         ],
       ),
-      backgroundColor: Colors.black,
     );
   }
 }
